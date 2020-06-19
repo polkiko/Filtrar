@@ -1,0 +1,765 @@
+; ------------------------------------------------------------------------------
+; ------------------------------- INICIO MACROS --------------------------------
+; ------------------------------------------------------------------------------
+
+PUSH: 		MACRO(var)
+			subu r30, r30, 4
+			st var, r30, 0
+			ENDMACRO
+
+POP:  		MACRO(var)
+			ld var, r30, 0
+			addu r30, r30, 4
+			ENDMACRO
+
+LEA: 		MACRO(var, dir)
+			or var, r0, low(dir)
+			or var, var, high(dir)
+			ENDMACRO
+
+; --------------------------------- FIN MACROS ---------------------------------
+
+
+; ------------------------------------------------------------------------------
+; ---------------------------- INICIO DATOS PRUEBAS ----------------------------
+; ------------------------------------------------------------------------------
+
+org 0x00000000
+nF:			data 5
+
+org 0x00000500
+
+OPER1:		data -1
+
+DATO1:		data 100
+
+; ------------------------------ Datos para Comp -------------------------------
+
+IMAGEN1:	data 4, 8
+			data 0x00000000, 0x00000000
+			data 0x00000000, 0x00002100
+			data 0x00000000, 0x00000000
+			data 0x00000000, 0x00000000
+
+IMAGEN2:	data 4, 8
+			data 0x00000000, 0x00000000
+			data 0x00000000, 0x00000000
+			data 0x00000000, 0x00000000
+			data 0x00000000, 0x00000000
+
+IMAGEN4:	data 4, 8
+			data 0xFF55FF55, 0xFF55FF55
+			data 0x55FF55FF, 0x55FF55FF
+			data 0xFF55FF55, 0xFF55FF55
+			data 0x55FF55FF, 0x55FF55FF
+
+IMAGEN3:	data 4, 8
+			data 0xFE54FE54, 0xFE54FE54
+			data 0x57FD57FD, 0x57FD57FD
+			data 0xFD54FE54, 0xFD54FE54
+			data 0x53FD53FD, 0x53FD53FD
+
+IMAGEN5:	data 4, 8
+			data 0xD1000000, 0x00000000
+			data 0x00000000, 0x00007A1D
+			data 0x01000000, 0x00000000
+			data 0x00000000, 0x000000FF
+
+IMAGEN6:	data 4, 8
+			data 0x02000000, 0x00000000
+			data 0x00000000, 0x00000182
+			data 0xFF000000, 0x00000000
+			data 0x00000000, 0x00000010
+
+IMAGEN7:	data 3, 3
+			data 0x00000000, 0x00000000
+			data 0x00
+
+IMAGEN8:	data 3, 4
+			data 0x00000000, 0x00000000
+			data 0x00000000
+
+
+; ---------------------------- Datos para SubMatriz ----------------------------
+
+IMAGEN:		data 3, 3
+			data 0x40302010, 0x80706050, 0x90
+IMAGEN_2:	data 5, 8
+			data 0x04030201, 0x08070605
+			data 0x0C0B0A09, 0x100F0E0D, 0x14131211, 0x18171615
+			data 0x1C1B1A19, 0x201F1E1D, 0x24232221, 0x28272625
+SUBIMAGENA:	data 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
+
+
+; --------------------------- Datos para ValorPixel ----------------------------
+
+SUBIMAGEN: data 0x00000000, 0x00000055, 0x00
+
+FILTRO: 	data 0, 1, 0, 1, 0, 1
+			data 0, 1, 1, 1, 0, 1
+			data 0, 1, 0, 1, 0, 1
+
+FILTRO2: 	data 0, 1, 0, 1, 0, 1
+			data 0, 1, 2, 0xFFFFFFFF, 0, 1
+			data 0, 1, 0, 1, 0, 1
+
+SUBIMAGEN3:data 0x13121110, 0x17161514, 0x00000018
+
+FILTRO3: 	data 2, 0xFFFFFFFF, 0xFFFFFFFE, 1
+			data 2, 0xFFFFFFFF, 0xFFFFFFFE, 1
+			data 0, 1, 0xFFFFFFFE, 1
+			data 2, 0xFFFFFFFF, 0xFFFFFFFE, 1
+			data 2, 0xFFFFFFFF
+
+
+; ----------------------------- Datos para FilPixel ----------------------------
+
+IMAGEN9:	data 5, 5
+			data 0x44332211, 0x03020155
+			data 0x22210504, 0x31252423
+			data 0x35343332, 0x44434241
+			data 0x00000045
+
+FILTRO4:	data 0, 1, 0, 1, 0, 1
+			data 0, 1, -5, -5, 0, 1
+			data 0, 1, 0, 1, 0, 1
+
+IMAGEN91:	data 4, 8
+			data 0x44444444, 0x44444444
+			data 0x33343444, 0x44444444
+			data 0x44884444, 0x44444444
+			data 0x44444444, 0x44444444
+
+FILTRO41:	data 1, 8, 1, 8, 1, 8
+			data 1, 8, 0, 8, 1, 8
+			data 1, 8, 1, 8, 1, 8
+
+IMAGEN92:	data 4, 8
+			data 0x40414243, 0x44454647
+			data 0x48494A4B, 0x4C4D4E4F
+			data 0x40994243, 0x44454647
+			data 0x48494A4B, 0x4C4D4E4F
+
+FILTRO42:	data 1, 1, 1, 1, 1, 1
+			data 1, 1, -8, 1, 1, 1
+			data 1, 1, 1, 1, 1, 1
+
+; ----------------------------- Datos para Filtro ------------------------------
+
+IMAGEN10:	data 4, 8
+			data 0x04030201, 0x07060504
+			data 0x14134211, 0x17168514
+			data 0x24232221, 0x27262574
+			data 0x34333231, 0x37363534
+
+FILTRADA:	res 40
+
+FILTRO5:	data 0, 1, -3, 1, 0, 1
+			data 0, 1, 4, 1, 0, 1
+			data 0, 1, 0, 1, 0, 1
+
+IMAGEN11:	data 4, 6
+			data 0x04030201, 0x02000605
+			data 0x05030104, 0x0C090603
+			data 0x0804120F, 0x80402010
+
+FILTRO6:	data -2, -8, 0, -8, -2, -8
+			data 0, -8, 0, -8, 0, -8
+			data -2, -8, 0, -8, -2, -8
+
+IMAGEN12:	data 4, 6
+			data 0x12345678, 0xFFFEFDFC
+			data 0x13355779, 0xEEEDECEB
+			data 0x23456789, 0xDFDEDDDC
+
+
+; ----------------------------- Datos para FiltRec -----------------------------
+
+IMAGEN20:	data 4, 4
+			data 0x04030201, 0x0D0E0F10, 0x05040302, 0x23222120
+FILTRO20: 	data 1, 8, 1, 8, 1, 8
+			data 1, 8, 0, 8, 1, 8
+			data 1, 8, 1, 8, 1, 8
+FILTRADA20:	res 24
+			data 0x55555555, 0x55555555
+
+IMAGEN21:	data 5, 5
+			data 0x000A000A, 0x0000000A
+			data 0x000A0000, 0x000A000A
+			data 0x00000000, 0x000A000A
+			data 0x0000000A
+FILTRO21: 	data 0, 1, 0, 1, 0, 1
+			data 0, 1, 1, 2, 0, 1
+			data 0, 1, 0, 1, 0, 1
+FILTRADA21:	res 36
+			data 0xA5A5A5A5
+
+IMAGEN22:	data 4, 8
+			data 0xFF0000FF, 0xFF0000FF
+			data 0xFF0000FF, 0xFF0000FF
+			data 0xFF0000FF, 0xFF0000FF
+			data 0xFF0000FF, 0xFF0000FF
+FILTRO22:	data 1, 4, 0, 4, 1, 4
+			data 0, 4, 0, 4, 0, 4
+			data 1, 4, 0, 4, 1, 4
+FILTRADA22:	res 40
+			data 0xAAAAAAAA, 0xAAAAAAAA
+
+IMAGEN23:	data 5, 5
+			data 0x04030201, 0x08070605
+			data 0x0C0B0A09, 0x100F0E0D
+			data 0x14131211, 0x18171615
+			data 0x00000019
+FILTRO23:	data 0, 1, 0, 1, 0, 1
+			data -2, 1, 2, 1, -2, 1
+			data 0, 1, 0, 1, 0, 1
+FILTRADA23:	res 36
+			data 0xAAAAAAAA, 0xAAAAAAAA
+
+IMAGEN24:	data 4, 7
+			data 0x04030201, 0x08070605
+			data 0x0C0B0A09, 0x100F0E0D
+			data 0x14131211, 0x18171615
+			data 0x1C1B1A19
+FILTRO24:	data 0, 1, 0, 1, 0, 1
+			data -2, 1, 2, 1, -2, 1
+			data 0, 1, 0, 1, 0, 1
+FILTRADA24:	res 36
+			data 0xAAAAAAAA, 0xAAAAAAAA
+
+; ------------------------------ FIN DATOS PRUEBAS -----------------------------
+
+
+
+
+; ------------------------------------------------------------------------------
+; -------------------------------- PROGRAMA PPAL -------------------------------
+; ------------------------------------------------------------------------------
+
+PPALNFILT:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, OPER1)			; Cargo en r3 la dirección de memoria donde está OPER1
+				ld r3, r3, r0			; Cargo en r3 el dato contenido en esa dir. de mem.
+				PUSH(r3)				; Guardo en la pila el OPER
+				bsr nFiltrados			; Llamo a nFiltrados
+				stop
+
+PPALSQRT:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, DATO1)			; Cargo en r3 la dirección de memoria donde está DATO1
+				ld r3, r3, r0			; r3 <-- 2, Cargo en r3 el dato contenido en esa dir. de mem.
+				PUSH(r3)				; Guardo en la pila el dato
+				bsr Sqrt				; Llamada a Sqrt
+				stop
+
+PPALCOMP:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, IMAGEN8)		; Cargo en r3 la dirección de memoria donde está IMAGEN1
+				LEA(r4, IMAGEN8)		; Cargo en r4 la dirección de memoria donde está IMAGEN2
+				PUSH(r4)				; Guardo en la pila IMAGEN2
+				PUSH(r3)				; Guardo en la pila IMAGEN1
+				bsr Comp				; Llamo a Comp
+				stop
+
+PPALSUBMATRIZ:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, IMAGEN_2)		; Cargo en r3 la dirección de memoria donde está IMAGEN_2
+				LEA(r4, SUBIMAGENA)		; Cargo en r4 la dirección de memoria donde está SUBIMAGEN
+				or r5, r0, 3			;
+				or r6, r0, 6			;
+				PUSH(r6)
+				PUSH(r5)
+				PUSH(r4)				; Guardo en la pila SUBIMAGEN
+				PUSH(r3)				; Guardo en la pila IMAGEN_2
+				bsr SubMatriz			; Llamo a Comp
+				stop
+
+PPALVALORPIXEL:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, SUBIMAGEN3)		; Cargo en r3 la dirección de memoria donde está SUBIMAGEN
+				LEA(r4, FILTRO3)		; Cargo en r4 la dirección de memoria donde está FILTRO
+				PUSH(r4)				; Guardo en la pila FILTRO
+				PUSH(r3)				; Guardo en la pila SUBIMAGEN
+				bsr ValorPixel			; Llamo a ValorPixel
+				stop
+
+PPALFILPIXEL:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, IMAGEN92)		; Cargo en r3 la dirección de memoria donde está IMAGEN
+				LEA(r4, FILTRO42)		; Cargo en r4 la dirección de memoria donde está FILTRO
+				or r5, r0, 2			; i
+				or r6, r0, 2			; j
+				PUSH(r4)				; Guardo en la pila FILTRO
+				PUSH(r5)				; j
+				PUSH(r6)				; i
+				PUSH(r3)				; Guardo en la pila IMAGEN
+				bsr FilPixel			; Llamo a FilPixel
+				stop
+
+PPALFILTRO:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, IMAGEN12)		; Cargo en r3 la dirección de memoria donde está IMAGEN
+				LEA(r4, FILTRADA)		; Cargo en r4 la dirección de memoria donde está FILTRADA
+				LEA(r5, FILTRO)			; Cargo en r5 la dirección de memoria donde está FILTRO
+				PUSH(r5)				; Guardo en la pila FILTRO
+				PUSH(r4)				; Guardo en la pila FILTRADA
+				PUSH(r3)				; Guardo en la pila IMAGEN
+				bsr Filtro				; Llamo a Filtro
+				stop
+
+PPALFILTREC:
+				LEA(r30, 0x0000F000)	; Puntero de pila apuntando a 0x0000F000
+				LEA(r3, IMAGEN21)		; Cargo en r3 la dirección de memoria donde está IMAGEN
+				LEA(r4, FILTRO21)		; Cargo en r4 la dirección de memoria donde está FILTRO
+				LEA(r5, FILTRADA21)		; Cargo en r5 la dirección de memoria donde está FILTRADA
+				or r6, r0, 2			; NCambios
+				or r7, r0, 5 			; NF
+				PUSH(r7)
+				bsr nFiltrados 			; NF = 4
+				POP(r7)					; Restauro marco de pila
+				PUSH(r6)				; Guardo en la pila NCambios
+				PUSH(r4)				; Guardo en la pila FILTRO
+				PUSH(r5)				; Guardo en la pila FILTRADA
+				PUSH(r3)				; Guardo en la pila IMAGEN
+				bsr FiltRec				; Llamo a FiltRec
+				stop
+
+
+
+; ------------------------------------------------------------------------------
+; --------------------------------- SUBRUTINAS ---------------------------------
+; ------------------------------------------------------------------------------
+
+; ----------------------------- SUBRUTINA FiltRec ------------------------------
+; r2 = Dir_ImagenIn
+; r3 = Dir_ImagenOut
+; r4 = Dir_MFiltro
+; r5 = NCambios
+; r6 = M, r7 = N
+; r8 = M*N
+; r9 = (M*N)/4
+; r11 = (M*N)/4 * 4 (comprobamos exceso)
+; r12 = 0 (contador desplazamiento)
+; r13 = Dir_ImagenTMP
+; r14 = -1
+; r20 = Valor del elemento copiar
+; r10 = Resultado comparación
+
+
+			FiltRec: 	PUSH(r1)
+						PUSH(r31)
+						or r31, r30, r30
+
+						ld r2, r30, 8				; r2 <-- Dir_ImagenIn
+						ld r3, r30, 12				; r3 <-- Dir_ImagenOut
+						ld r4, r30, 16				; r4 <-- Dir_MFiltro
+						ld r5, r30, 20				; r5 <-- NCambios
+						ld r6, r2, 0				; r6 <-- M
+						ld r7, r2, 4				; r7 <-- N
+						mulu r8, r6, r7				; r8 <-- M*N
+
+		bucle_ajuste:	divu r9, r8, 4				; r9 <-- (M*N)/4
+						mulu r9, r9, 4				; r9 <-- *4 (tamaño final por exceso, excepto...)
+
+						cmp r10, r9, r8     		; ¿=? SI -> AVANZA
+						bb1 eq, r10, AVANZA 		; En caso de que el número de bits sea menor,
+						addu r8, r8, 1				; sumamos uno al entero resultante de dividir
+						br bucle_ajuste				;
+				AVANZA:	addu r8, r8, 8				; Añado el espacio para M y N
+						subu r30, r30, r8			; Reserva de espacio (r8)
+						or r13, r30, r30			; r13 <-- Dir_ImagenTMP
+
+						PUSH(r8)					; Tamaño matriz ImagenTMP
+						PUSH(r13)					; Dir_ImagenTMP lo guardo puesto que me hará falta
+						PUSH(r5)					; NCambios lo guardo puesto que me hará falta
+						PUSH(r4)					; Guardo Dir_MFiltro
+						PUSH(r3)					; Guardo Dir_ImagenOut
+						PUSH(r2)					; Guardo Dir_ImagenIn
+						bsr Filtro					; Llamada a subrutina Filtro
+						POP(r2)						; Restauro pila guardando valores...
+						POP(r3)						;
+						POP(r4)						;
+						POP(r5)						;
+						POP(r13)					;
+						POP(r8)						;
+						or r12, r0, r0				; r12 <-- 0 (Contador desplazamiento para copiar)
+
+				COPIA:	ld r20, r3, r12				; r20 <-- Elemento(n) de Dir_ImagenOut
+						st r20, r13, r12			; r13 <-- Elemento(n) de Dir_ImagenOut a Dir_ImagenTMP
+						addu r12, r12, 4			; r12 <-- r12 + 4
+						cmp r10, r12, r8     		; ¿Despl = Tamaño? NO -> COPIA
+						bb0 eq, r10, COPIA 			;
+
+						subu r14, r0, 1				; r14 <-- -1
+						PUSH(r4)					; Guardo Dir_MFiltro me hará falta
+						PUSH(r13)					; Guardo Dir_ImagenTMP me hará falta
+						PUSH(r5)					; Guardo NCambios me hará falta
+						PUSH(r3)					; Dir_ImagenOut me hará falta
+						PUSH(r2)					; Dir_ImagenIn me hará falta
+						PUSH(r14)					; Guardo oper (-1)
+						bsr nFiltrados				;
+						addu r30, r30, 4			; No necesito restaurar r14
+
+						cmp r10, r29, 0				; ¿r29 = 0? SI --> FIN_FILTROREC1
+						bb1 eq, r10, FIN_FILTROREC1	;
+
+						bsr Comp					; Ya tengo los parámetros guardados en orden correcto
+						POP(r2)						;
+						POP(r3)						;
+						POP(r5)						;
+						POP(r13)					;
+						POP(r4)						;
+
+						cmp r10, r29, r5     		; ¿r29 < NCambios? SI -> FIN_FILTROREC
+						bb1 lt, r10, FIN_FILTROREC	;
+
+						PUSH(r5)					; Guardo Ncambios
+						PUSH(r4)					; Guardo Dir_MFiltro
+						PUSH(r3)					; Guardo Dir_ImagenOut
+						PUSH(r13)					; Guardo Dir_ImagenTMP
+						bsr FiltRec					;
+						addu r30, r30, 16			; Restauro marco de pila
+						br FIN_FILTROREC			;
+		FIN_FILTROREC1:	subu r29, r0, 1				; r29 <-- -1
+		FIN_FILTROREC:	or r30, r31, r31
+						POP(r31)
+						POP(r1)
+						jmp(r1)
+
+; ---------------------------- FIN SUBRUTINA FiltRec ---------------------------
+
+
+; ------------------------------ SUBRUTINA Filtro ------------------------------
+; r2 = Dir_Imagen
+; r3 = Dir_ImFiltrada
+; r4 = Dir_MFiltro
+; r5 = M | M-1, r6 = N | N-1 (Para comprobar que no está en el borde)
+; r7 = i (contador de fila)
+; r8 = j (contador de columna)
+; r29 = Valor del pixel filtrado
+; r10 = Resultado comparación
+
+
+			Filtro: 	PUSH(r1)
+						PUSH(r31)
+						or r31, r30, r30
+
+						ld r2, r30, 8			; r2 <-- Dir_Imagen
+						ld r3, r30, 12			; r3 <-- Dir_ImFiltrada
+						ld r4, r30, 16			; r4 <-- Dir_MFiltro
+
+						ld r5, r2, 0			; r5 <-- M(Dir_Imagen)
+						ld r6, r2, 4			; r6 <-- N(Dir_Imagen)
+						st r5, r3, 0			; M(Dir_ImFiltrada) <-- M(Dir_Imagen)
+						st r6, r3, 4			; N(Dir_ImFiltrada) <-- N(Dir_Imagen)
+						or r17, r0, 8			; r3 <-- Avanzo hasta el primer elemento (0,0)
+
+						subu r5, r5, 1			; r5 <-- M - 1
+						subu r6, r6, 1			; r6 <-- N - 1
+
+
+						or r7, r0, r0			; r7 <-- 0 (i)
+	  BUCLE_FILAFILTRO:	cmp r10, r7, r5     	; ¿i > M-1? SI -> FIN_FILTRO
+						bb1 gt, r10, FIN_FILTRO ;
+						or r8, r0, r0			; r8 <-- 0 (j)
+	   BUCLE_COLFILTRO: cmp r10, r8, r6     	; ¿j > N-1? SI -> FIN_COLFILTRO
+						bb1 gt, r10, FIN_COLFILTRO;
+						PUSH(r5)				; Guardo M-1
+						PUSH(r6)				; Guardo N-1
+						PUSH(r3)				; Guardo Dir_ImFiltrada que luego utilizo...
+						PUSH(r4)				; Guardo Dir_MFiltro
+						PUSH(r8)				; Guardo j
+						PUSH(r7)				; Guardo i
+						PUSH(r2)				; Guardo Dir_Imagen
+						bsr FilPixel			;
+						POP(r2)					; Restauro pila guardando valores...
+						POP(r7)					;
+						POP(r8)					;
+						POP(r4)					;
+						POP(r3)					;
+						POP(r6)					;
+						POP(r5)					;
+						st.b r29, r3, r17		; Almacena el pixel filtrado en Dir_ImFiltrada
+						addu r8, r8, 1			; j++ (incremento columna)
+						addu r17, r17, 1		; Incremento al siguiente elemento de ImFiltrada
+						br BUCLE_COLFILTRO		; Salto al bucle columna
+		FIN_COLFILTRO:
+						addu r7, r7, 1			; i++
+						br BUCLE_FILAFILTRO		;
+			FIN_FILTRO: or r30, r31, r31
+						POP(r31)
+						POP(r1)
+						jmp(r1)
+
+; ---------------------------- FIN SUBRUTINA Filtro ----------------------------
+
+
+; ----------------------------- SUBRUTINA FilPixel -----------------------------
+; r2 = Dir_Imagen
+; r3 = Dir_MFiltro
+; r4 = i, r5 = j
+; r6 = M-1, r7 = N-1 (Para comprobar que no está en el borde)
+; r9 = Dir_SubMatriz (Apuntará al espacio reservado para SubMatriz)
+; r11 = Desplazamiento (posiciones a desplazarse sobre Dir_Imagen)
+; r29 = Valor del pixel en Dir_Imagen pedido
+; r10 = Resultado comparación
+
+			FilPixel: 	PUSH(r1)
+						PUSH(r31)
+						or r31, r30, r30
+
+						ld r2, r30, 8			; r2 <-- Dir_Imagen
+						ld r3, r30, 12			; r3 <-- i
+						ld r4, r30, 16			; r4 <-- j
+						ld r5, r30, 20			; r5 <-- Dir_MFiltro
+
+						ld r6, r2, 0			; r6 <-- M
+						ld r7, r2, 4			; r7 <-- N
+
+						muls r11, r3, r7		; Desp <-- i*N
+						addu r11, r11, 8        ; Desp <-- Desp + 8 (incremento base = 8)
+						addu r11, r11, r4		; Desp <-- i*N + j (Situado en primer elem.)
+
+						subu r6, r6, 1			; r6 <-- M - 1
+						subu r7, r7, 1			; r7 <-- N - 1
+
+						ld.b r29, r2, r11      	; r29 <-- Valor del pixel
+
+ 						cmp r10, r3, r0     	; ¿i = 0? SI -> FIN_FILPIX
+						bb1 eq, r10, FIN_FILPIX ;
+						cmp r10, r3, r6    		; ¿i = (M-1)? SI -> FIN_FILPIX
+						bb1 eq, r10, FIN_FILPIX ;
+						cmp r10, r4, r0     	; ¿j = 0? SI -> FIN_FILPIX
+						bb1 eq, r10, FIN_FILPIX ;
+						cmp r10, r4, r7    		; ¿j = (N-1)? SI -> FIN_FILPIX
+						bb1 eq, r10, FIN_FILPIX ;
+
+						subu r30, r30, 12		; Reserva de espacio (12 bytes)
+						or r9, r30, r30			; r9 <-- Dir_SubMatriz (donde guardaremos)
+
+						PUSH(r5)				; Guardo Dir_MFiltro que luego me hará falta
+						PUSH(r4)				; Guardo en la pila j
+						PUSH(r3)				; Guardo en la pila i
+						PUSH(r9)				; Guardo Dir_SubMatriz (donde tiene que guardarla)
+						PUSH(r2)				; Guardo Dir_Imagen
+						bsr SubMatriz			;
+						POP(r2)					; Restauro...
+						POP(r9)					;
+						POP(r3)					;
+						POP(r4)					;
+						POP(r5)					;
+
+						PUSH(r5)				; Guardo Dir_MFiltro
+						PUSH(r9)				; Guardo Dir_SubMatriz
+						bsr ValorPixel			;
+						POP(r9)					;
+						POP(r5)					;
+
+						cmp r10, r29, r0    	; ¿VP >= 0? SI -> MAYOR_CERO
+						bb1 ge, r10, MAYOR_CERO ;
+						or r29, r0, r0			; VP no es >= 0, VP = 0 y FIN_FILPIX
+						br FIN_FILPIX			; Salto a FIN_FILPIX
+			MAYOR_CERO:	cmp r10, r29, 255    	; ¿VP <= 255? SI -> FIN_FILPIX
+						bb1 le, r10, FIN_FILPIX ;
+						or r29, r0, 255			; VP no es <= 255, VP = 255
+			FIN_FILPIX:	or r30, r31, r31
+						POP(r31)
+						POP(r1)
+						jmp(r1)
+
+; --------------------------- FIN SUBRUTINA FilPixel ---------------------------
+
+
+; ---------------------------- SUBRUTINA ValorPixel ----------------------------
+; r2 = Dir_SubImg
+; r3 = Dir_MFiltro
+; r15 = Contador
+; r21 = Valor del pixel de la SubImg
+; r10 = Resultado comparación
+; r16 = Acc
+
+			ValorPixel: PUSH(r1)
+						PUSH(r31)
+						or r31, r30, r30
+
+						or r16, r0, r0			; Acc = 0
+						ld r2, r30, 8			; r2 <-- Dir_SubImg
+						ld r3, r30, 12			; r3 <-- Dir_MFiltro
+
+						or r15, r0, r0			; Contador = 0
+
+		BUCLE_NUMER:	cmp r10, r15, 9         ; ¿Contador = 9? SI -> FIN_VALPIX
+						bb1 eq, r10, FIN_VALPIX	;
+
+						ld.bu r21, r2, 0		; r21 <-- Valor_Pixel
+						ld r4, r3, 0			; r4 <-- Numerador
+						ld r5, r3, 4			; r4 <-- Denominador
+						mulu r21, r21, 256		; r21 <-- ValorPixel * 256
+						muls r21, r21, r4		; r21 <-- Numerador * (ValorPixel * 256)
+						divs r21, r21, r5		; r21 <-- (Numerador * (ValorPixel * 256))/Denominador
+						addu r16, r16, r21		; Acc = Acc + r21
+						addu r3, r3, 8			; Dir_MFiltro++
+						addu r15, r15, 1		; Contador++
+						addu r2, r2, 1			; Dir_SubImg++
+						br BUCLE_NUMER			;
+
+			FIN_VALPIX:	divs r29, r16, 256		; r29 <-- Acc/256
+						or r30, r31, r31
+						POP(r31)
+						POP(r1)
+						jmp(r1)
+
+; -------------------------- FIN SUBRUTINA ValorPixel --------------------------
+
+
+; ----------------------------- SUBRUTINA SubMatriz ----------------------------
+; r2 = Dir_Imagen, r7 = N(Imagen)
+; r3 = Dir_SubImg
+; r4 = i			r5 = j
+; r11 = Desplazamiento (posiciones a desplazarse sobre Dir_Imagen)
+; r15 = Contador columna, r16 = Contador fila
+; r21 = Valor actual del pixel de la imagen
+; r10 = Resultado comparación
+
+
+			SubMatriz:  PUSH(r1)
+						PUSH(r31)
+						or r31, r30, r30
+
+						ld r2, r30, 8           ; r2 <-- Dir_Imagen
+						ld r3, r30, 12          ; r3 <-- Dir_SubImg
+						ld r4, r30, 16          ; r4 <-- i
+						ld r5, r30, 20          ; r5 <-- j
+						ld r7, r2, 4            ; r7 <-- N
+						subu r4, r4, 1			; i--
+						subu r5, r5, 1			; j--
+
+						muls r11, r4, r7		; Desp <-- i*N
+						addu r11, r11, 8        ; Desp <-- Desp + 8 (incremento base = 8)
+						addu r11, r11, r5		; Desp <-- i*N + j (Situado en primer elem.)
+
+						or r15, r0, r0			; r15 <-- Contador columna
+						or r16, r0, r0			; r16 <-- Contador fila
+
+			BUCLE_FILA: cmp r10, r16, 3         ; ¿Contador fila = 3? SI -> FIN_SUBM
+						bb1 eq, r10, FIN_SUBM  	;
+
+			BUCLE_COL:  ld.bu r21, r2, r11      ; r21 <-- Valor del pixel
+						st.b r21, r3, 0			; Guardo el valor del pixel en SubImg
+						addu r15, r15, 1		; Contador_columna++
+						addu r11, r11, 1		; Desp++
+						addu r3, r3, 1			; Dir_SubImg++
+						cmp r10, r15, 3         ; ¿Contador columna= 3? NO -> BUCLE_COL
+						bb0 eq, r10, BUCLE_COL  ;
+						subu r11, r11, 3		; Desp <-- Desp - 3
+						addu r11, r11, r7		; Desp <-- Desp + N
+						or r15, r0, 0			; Contador_columna a 0 nuevamente
+						addu r16, r16, 1		; Contador_fila++
+						br BUCLE_FILA			; Salto a BUCLE_FILA
+
+			FIN_SUBM:	or r30, r31, r31
+						POP(r31)
+						POP(r1)
+						jmp(r1)
+
+; --------------------------- FIN SUBRUTINA SubMatriz --------------------------
+
+
+; ------------------------------- SUBRUTINA Comp -------------------------------
+; r25 = Dif
+; r2 = Dir_Img1
+; r3 = Dir_Img2
+; r4 = M, r5 = N
+; r6 = M*N
+; r11 = Valor a sumar por cada iteración
+; r21 = Valor del pixel actual de Img1 | Sucesivos valores
+; r22 = Valor del pixel actual de Img2 | Sucesivos valores
+; r10 = resultado comparación
+
+				Comp:   PUSH(r1)
+						PUSH(r31)
+						or r31, r30, r30
+
+						or r25, r0, 0           ; Dif <-- 0
+						ld r2, r30, 8           ; r2 <-- Dir_Img1
+						ld r3, r30, 12          ; r3 <-- Dir_Img2
+						ld r4, r2, 0            ; r4 <-- M
+						ld r5, r2, 4            ; r5 <-- N
+						muls r6, r5, r4         ; r6 <-- total_pixeles (contador)
+						or r11, r0, 8           ; Incremento <-- 8 (incremento base = 8)
+
+			BUCLE_PIX:  cmp r10, r6, 0          ; ¿Contador = 0? SI -> FIN_COMP
+						bb1 eq, r10, FIN_COMP   ;
+						ld.bu r21, r2, r11      ; a <-- valor pixel img 1 + incr
+						ld.bu r22, r3, r11      ; b <-- valor pixel img 2 + incr
+						subu r21, r21, r22      ; a <-- a - b
+						muls r21, r21, r21      ; a <-- (a)^2
+						addu r25, r25, r21		; dif <-- dif + a
+						addu r11, r11, 1        ; r11++
+						subu r6, r6, 1			; r6--
+						br BUCLE_PIX			; Salto a BUCLE_PIX
+
+			FIN_COMP:	PUSH(r25)				;
+						bsr Sqrt				; Llamo a Sqrt pasándole como parámnetro Dif
+						addu r30, r30, 4		; Restauro puntero de pila
+
+						or r30, r31, r31
+						POP(r31)
+						POP(r1)
+						jmp(r1)
+
+; ----------------------------- FIN SUBRUTINA Comp -----------------------------
+
+
+; ------------------------------- SUBRUTINA Sqrt -------------------------------
+; r2 = num, r4 = num (copio num)
+; r3 = b
+; r6 = a - b
+; r5 = aux (para intercambiar)
+; r10 = resultado comprobación
+; r29 = resultado
+
+				Sqrt:	PUSH(r1)
+						ld r2, r30, 4			; r2 <-- M(r30+4), r2 = num
+						or r4, r2, r2			; r4 <-- num
+						cmp r10, r2, 2
+						bb1 lt, r10, FIN_SQRT	; ¿Num < 2?, SI -> Salta a FIN_SQRT
+						or r3, r0, 1			; r3 <-- 1, b = 1
+			BUCLE_SQRT: addu r2, r2, r3			; a <-- a + b
+						divu r2, r2, 2			; a <-- (a+2)/2
+						divu r3, r4, r2			; b <-- Num/a
+						cmp r10, r3, r2
+						bb0 gt, r10, NO_SUST	; ¿b > a?, NO -> Salta a NO_SUST
+						or r5, r2, r2			; aux <-- a
+						or r2, r3, r3			; a <-- b
+						or r3, r5, r5			; b <-- aux
+			   NO_SUST: subu r6, r2, r3			; r6 <-- a - b
+						cmp r10, r6, 1
+						bb0 le, r10, BUCLE_SQRT	; ¿(a-b) <= 1? NO -> BUCLE_SQRT
+						or r2, r3, r3			; r2 <-- b
+			  FIN_SQRT: or r29, r2, r2			; r29 <-- (b || a)
+						POP(r1)					;
+						jmp(r1)					;
+
+; ----------------------------- FIN SUBRUTINA Sqrt -----------------------------
+
+
+; ---------------------------- SUBRUTINA nFiltrados ----------------------------
+; r29 = oper (Valor pasado) || nF (Variable estática, en posición de memoria 0)
+; r10 = resultado comprobación
+
+			nFiltrados: PUSH(r1)
+						ld r29, r30, 4          ; r29 <-- oper
+						cmp r10, r29, r0        ; ¿Oper >= 0? SI -> Salta a actu_nF
+						bb1 ge, r10, actu_nF
+						ld r29, r0, r0          ; r29 <-- nF, Guardo en r2 la variable nF
+						subu r29, r29, 1        ; r29--
+						cmp r10, r29, r0
+						bb1 ge, r10, actu_nF    ; ¿nF >=0? SI -> Salto a actu_nF
+												; Si es que no, entonces nF deberá ser 0.
+						or r29, r0, r0          ; Para ello asigno a r2 el 0
+			  actu_nF:  st r29, r0, 0           ; r29 --> M(r0), oper --> nF
+						POP(r1)
+						jmp(r1)
+
+; -------------------------- FIN SUBRUTINA nFiltrados --------------------------
